@@ -1,0 +1,15 @@
+{% extends 'debtlist/base.html' %}
+
+{% block title %}
+    Добавление нового долга
+{% endblock %}
+
+{% block body %}
+    <div>
+        <form method="post">
+
+            {% csrf_token %}
+            {{ form.as_p }}
+        </form>
+    </div>
+{% endblock %}
