@@ -17,6 +17,4 @@ class Debt(models.Model):
         return self.notes[:48] + '...'
 
     def __str__(self) -> str:
-        return str(self.name) #работает
-# Create your models here.
-
+        return str(self.name)
