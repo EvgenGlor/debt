@@ -1,15 +1,25 @@
 from django.db import models
 
 
+class MoneyGiver(models.Model):
+    id = models.AutoField(primary_key=True, null=False)
+    name = models.CharField(max_length=30)
+    phone_number = models.IntegerField(null=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self) -> str:
+        return str(self.name)
+
+
 class Debt(models.Model):
     class Meta:
-        ordering = ['name']  # для упорядочивания
+        ordering = ['money_giver']  # для упорядочивания
 
-    name = models.CharField(max_length=30, primary_key=True)
+    money_giver = models.ForeignKey(to=MoneyGiver, to_field="id", on_delete=models.PROTECT, related_name="debt")
     debt_sum = models.DecimalField(default=0, max_digits=8, decimal_places=2)
-    return_date = models.DateField(auto_now_add=True)
-    take_date = models.DateField(auto_now_add=True)
-    notes = models.TextField(null=False, blank=True)
+    notes = models.TextField(blank=True, null=True)
 
     @property
     def notes_short(self) -> str:
@@ -18,14 +28,4 @@ class Debt(models.Model):
         return self.notes[:48] + '...'
 
     def __str__(self) -> str:
-        return str(self.name)
-
-
-class MoneyGiver(models.Model):
-    name = models.ForeignKey(Debt, max_length=30, on_delete=models.CASCADE)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self) -> str:
-        return str(self.name)
+        return str(self.money_giver.__str__())
