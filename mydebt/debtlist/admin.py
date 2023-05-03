@@ -5,8 +5,8 @@ from .models import Debt
 
 @admin.register(Debt)
 class DebtAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'name', 'debt_sum', 'notes_short']
-    list_display_links = ['pk', 'name']
+    list_display = ['pk', 'debt_sum', 'notes_short']
+    list_display_links = ['pk']
 
 
 # admin.site.register(Debt, DebtAdmin)
