@@ -14,6 +14,7 @@ class DebtSerializer(ModelSerializer):
     class Meta:
         model = Debt
         fields = (
+            "id",
             "name",
             "debt_sum",
             "notes",

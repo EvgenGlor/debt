@@ -30,18 +30,24 @@ class DebtView(ModelViewSet):
         else:
             raise MethodNotAllowed(self.request.method)
 
-    def patch(self, request):
-        debt_id = request.data.get("id")
-        debt_sum = request.data.get("debt_sum")
-        debt = Debt.objects.get(pk=debt_id)
-        debt.debt_sum = debt_sum
-        debt.save()
-        serializer = self.get_serializer_class()
-        return Response(data=serializer(debt).data)
-
-
-
-
+    def patch(self, request, *args, **kwargs):
+        debt_id = request.data.get("id") #Пеоеменная debt_id = запршиваемый метод.дата?.гет?(ИД объекта)
+        if not debt_id: #Если данный ид == null
+            raise MethodNotAllowed(self.request.method) #райз?
+        else:
+            debt_sum = request.data.get("debt_sum") #Пеоеменная debt_sum = запршиваемый метод.дата?.гет?(сумма)
+            # print('--------------------------')
+            # print('debt_sum', debt_sum, type(debt_sum))
+            debt = Debt.objects.get(pk=debt_id)
+            # print('debt', debt, type(debt))
+            # print('--------------------------')
+            if type(debt_sum) != int: #как добавить флоааааааааааааат
+                raise MethodNotAllowed(self.request.method)  # райз?
+            else:
+                debt.debt_sum = debt_sum
+                debt.save()
+                serializer = self.get_serializer_class()
+                return Response(data=serializer(debt).data)
 
 
 
