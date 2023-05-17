@@ -1,11 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.exceptions import MethodNotAllowed, ValidationError
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Debt
 from .models import MoneyGiver
-from .serializers import DebtSerializer, MoneyGiverSerializer, DebtInputSerializer
+from .serializers import DebtSerializer, MoneyGiverSerializer, DebtInputSerializer, DebtUpdateSerializer
 
 
 class DebtView(ModelViewSet):
@@ -26,29 +26,20 @@ class DebtView(ModelViewSet):
         elif self.request.method == "POST":
             return DebtInputSerializer
         elif self.request.method == "PATCH":
-            return DebtSerializer
+            return DebtUpdateSerializer
         else:
             raise MethodNotAllowed(self.request.method)
 
     def patch(self, request, *args, **kwargs):
-        debt_id = request.data.get("id") #Пеоеменная debt_id = запршиваемый метод.дата?.гет?(ИД объекта)
-        if not debt_id: #Если данный ид == null
-            raise MethodNotAllowed(self.request.method) #райз?
-        else:
-            debt_sum = request.data.get("debt_sum") #Пеоеменная debt_sum = запршиваемый метод.дата?.гет?(сумма)
-            # print('--------------------------')
-            # print('debt_sum', debt_sum, type(debt_sum))
-            debt = Debt.objects.get(pk=debt_id)
-            # print('debt', debt, type(debt))
-            # print('--------------------------')
-            if type(debt_sum) != int: #как добавить флоааааааааааааат
-                raise MethodNotAllowed(self.request.method)  # райз?
-            else:
-                debt.debt_sum = debt_sum
-                debt.save()
-                serializer = self.get_serializer_class()
-                return Response(data=serializer(debt).data)
+        initial_data = request.data #Переменная initial_data = всё что находится в body запроса
+        serializer_class = self.get_serializer_class() #serializer = обращение к функции get_serializer_class, которая знает, что мы сделали запрос patch
+        serializer = serializer_class(data=initial_data)
+        serializer.is_valid(raise_exception=True) #Провалидировали body на предмет коректности. ВСЕ ПОЛЯ
 
+        debt = Debt.objects.get(pk=serializer.data["id"]) #objects общение с объектами данной модели
+        debt.debt_sum = serializer.data["debt_sum"]
+        debt.save()
+        return Response(DebtSerializer(debt).data)
 
 
 class MoneyGiverView(ModelViewSet):
