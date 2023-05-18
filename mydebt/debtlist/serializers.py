@@ -26,11 +26,11 @@ class DebtSerializer(ModelSerializer):
     phone_number = ReadOnlyField(source="money_giver.phone_number")
 
 
-    # def validate_debt_sum(self, obj):
-    #     if obj
 class DebtUpdateSerializer(Serializer):
     id = IntegerField()
     debt_sum = FloatField(min_value=10, max_value=1000000)
+
+    # phone_number = IntegerField()
 
     def validate_id(self, attr):
         try:
@@ -40,9 +40,30 @@ class DebtUpdateSerializer(Serializer):
         return attr
 
 
-
-
 class MoneyGiverSerializer(ModelSerializer):
     class Meta:
         model = MoneyGiver
-        fields = '__all__'
+        fields = (
+            "id",
+            "name",
+            "phone_number",
+
+        )
+
+
+class MoneyGiverInputSerializer(ModelSerializer):
+    class Meta:
+        model = MoneyGiver
+        fields = "__all__"
+
+
+class MoneyGiverUpdateSerializer(Serializer):
+    id = IntegerField()
+    phone_number = IntegerField()
+
+    def validate_id(self, attr):
+        try:
+            debt = MoneyGiver.objects.get(pk=attr)
+        except MoneyGiver.DoesNotExist:
+            raise ValidationError(detail="Не существует сущности MoneyGiver с идентификатором {}".format(attr))
+        return attr

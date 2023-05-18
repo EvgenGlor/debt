@@ -5,7 +5,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import Debt
 from .models import MoneyGiver
-from .serializers import DebtSerializer, MoneyGiverSerializer, DebtInputSerializer, DebtUpdateSerializer
+from .serializers import DebtSerializer, MoneyGiverSerializer, DebtInputSerializer, DebtUpdateSerializer, \
+    MoneyGiverInputSerializer, MoneyGiverUpdateSerializer
 
 
 class DebtView(ModelViewSet):
@@ -44,5 +45,34 @@ class DebtView(ModelViewSet):
 
 class MoneyGiverView(ModelViewSet):
     queryset = MoneyGiver.objects.all()
-    serializer_class = MoneyGiverSerializer
     filter_backends = [DjangoFilterBackend, ]
+
+    def get_queryset(self):
+        debt_sum = self.request.query_params.get("name", None)
+        queryset = MoneyGiver.objects.all()
+        if debt_sum:
+            queryset = queryset.filter(debt_sum=debt_sum)
+
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return MoneyGiverSerializer
+        elif self.request.method == "POST":
+            return MoneyGiverInputSerializer
+        elif self.request.method == "PATCH":
+            return MoneyGiverUpdateSerializer
+        else:
+            raise MethodNotAllowed(self.request.method)
+
+    def patch(self, request, *args, **kwargs):
+        initial_data = request.data #Переменная initial_data = всё что находится в body запроса
+        serializer_class = self.get_serializer_class() #serializer = обращение к функции get_serializer_class, которая знает, что мы сделали запрос patch
+        serializer = serializer_class(data=initial_data)
+        serializer.is_valid(raise_exception=True) #Провалидировали body на предмет коректности. ВСЕ ПОЛЯ
+
+        people = MoneyGiver.objects.get(pk=serializer.data["id"]) #objects общение с объектами данной модели
+        people.phone_number = serializer.data["phone_number"]
+        people.save()
+        return Response(MoneyGiverSerializer(people).data)
+

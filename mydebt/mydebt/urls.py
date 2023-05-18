@@ -17,11 +17,12 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework.routers import SimpleRouter
 
-from debtlist.views import DebtView
+from debtlist.views import DebtView, MoneyGiverView
 
 router = SimpleRouter()
 
 router.register('api/debt', DebtView)
+router.register('api/people', MoneyGiverView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

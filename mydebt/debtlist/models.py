@@ -15,7 +15,7 @@ class MoneyGiver(models.Model):
 
 class Debt(models.Model):
     class Meta:
-        ordering = ['money_giver']  # для упорядочивания
+        ordering = ['money_giver']
 
     money_giver = models.ForeignKey(to=MoneyGiver, to_field="id", on_delete=models.PROTECT, related_name="debt")
     debt_sum = models.DecimalField(default=0, max_digits=8, decimal_places=2)
